@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="produtos-style.css">
+  <title>Loja Luxo - CRUD</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <!-- Nav-Bar -->
+  <nav class="navbar fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">LOUIS VUITTON</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
+        aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title">Menu</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <li class="nav-item">
+              <a class="nav-link active" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="produtos.html">Gerir Produtos</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Produtos -->
+
+  <main class="container">
+    <section class="hero mb-4">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1 class="mb-1">Catálogo exclusivo</h1>
+        </div>
+        <div class="col-md-4 text-md-end">
+          <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#productModal" id="newBtn">Adicionar
+            novo</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pesquisa -->
+
+    <section class="mb-3">
+      <div class="row g-2">
+        <div class="col-md-6">
+          <input id="searchInput" class="form-control" placeholder="Pesquisar por nome ou descrição..." />
+        </div>
+        <div class="col-md-2">
+          <select id="filterStock" class="form-select">
+            <option value="">Todos</option>
+            <option value="1">Em estoque</option>
+            <option value="0">Fora de estoque</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabela -->
+
+    <section>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Descrição</th>
+              <th>Em estoque</th>
+              <th class="text-end">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="productsTbody">
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+
+  <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="productForm" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Novo Produto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="productId" />
+          <div class="mb-3">
+            <label class="form-label">Nome</label>
+            <input id="name" class="form-control" maxlength="255" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Descrição</label>
+            <input id="description" class="form-control" maxlength="255" required />
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="in_stock" />
+            <label class="form-check-label" for="in_stock">Em estoque</label>
+          </div>
+          <div id="formAlert" class="alert alert-danger d-none"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-dark" type="submit" id="saveBtn">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Script -->
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_URL = 'http://localhost/lv_store/api.php';
+
+     
+function carregar(pesquisa = '') {
+  let url = API_URL;
+  if (pesquisa) {
+    url += `?q=${encodeURIComponent(pesquisa)}`;
+  }
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      const tbody = document.querySelector('#productsTbody');
+      tbody.innerHTML = '';
+      
+      if (data.success && Array.isArray(data.items)) {
+        data.items.forEach(produto => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${produto.id}</td>
+          <td>${produto.name}</td>
+          <td>${produto.description}</td>
+          <td>${produto.in_stock ? 'Sim' : 'Não'}</td>
+          <td class="text-end">
+            <button class="btn btn-warning btn-sm me-1" onclick="editar(${JSON.stringify(produto).replace(/"/g, '&quot;')})">Editar</button>
+            <button class="btn btn-danger btn-sm" onclick="deletar(${produto.id})">Deletar</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+        });
+      } else {
+        console.error('Dados recebidos não são um array:', data);
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">Erro ao carregar dados</td></tr>';
+      }
+    })
+    .catch(error => {
+      console.error('Erro na requisição:', error);
+      const tbody = document.querySelector('#productsTbody');
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center">Erro ao carregar produtos</td></tr>';
+    })
+}
+
+function carregarPesquisa() {
+  const pesquisa = document.getElementById('searchInput').value;
+  carregar(pesquisa);
+}
+
+async function salvar() {
+  const id = document.getElementById('productId').value;
+  const nome = document.getElementById('name').value;
+  const descricao = document.getElementById('description').value;
+  const tem_estoque = document.getElementById('in_stock').checked ? 1 : 0;
+
+  const payload = { id:id, name: nome, description: descricao, in_stock: tem_estoque };
+
+  if (id) {
+    await fetch(API_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+  } else {
+    await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+  }
+  limpar();
+  carregar();
+}
+
+function editar(produto) {
+  document.getElementById('productId').value = produto.id;
+  document.getElementById('name').value = produto.name;
+  document.getElementById('description').value = produto.description;
+  document.getElementById('in_stock').checked = produto.in_stock;
+  const myModal = new bootstrap.Modal(document.getElementById('productModal'));
+  myModal.show();
+}
+
+async function deletar(id) {
+  if (confirm('Tem certeza que deseja deletar este produto?')) {
+    await fetch(API_URL + "?id=" + id, { method: 'DELETE' });
+    carregar();
+  }
+}
+
+function limpar() {
+  document.getElementById('productId').value = '';
+  document.getElementById('name').value = '';
+  document.getElementById('description').value = '';
+  document.getElementById('in_stock').checked = true;
+  const myModal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
+  myModal.hide();
+}
+
+carregar();
+
+// Event listeners
+document.getElementById('searchInput').addEventListener('input', carregarPesquisa);
+document.getElementById('productForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  salvar();
+});
+
+  </script>
+</body>
+
+</html>

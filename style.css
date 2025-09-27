@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+* {
+  font-family: Inter;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+
+}
+
+
+/* Boot-Strap */
+
+
+.navbar-brand {
+  margin-left: 46.5%;
+  font-weight: bold;
+  display: block;
+  text-align: center;
+}
+
+.navbar {
+  background-color: transparent;
+  height: 80px;
+}
+
+.navbar:hover {
+  background-color: white;
+}
+
+/* Vídeo  */
+
+video {
+  width: 100%;
+  height: 900px;
+  object-fit: cover;
+  display: block;
+}
+
+/* index.html */
+
+.title {
+  text-align: center;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  padding: 10px;
+  margin-left: 50px;
+  margin-right: 50px;
+}
+
+
+.title-01 {
+
+  margin-top: 40px;
+  margin-bottom: 40px;
+  font-weight: bold;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+
+/* Footer */
+
+footer {
+  background-color: #f8f9fa;
+  padding: 20px 0;
+  text-align: center;
+  border: #6c757d solid 1px;
+}
+.text-footer {
+  color: #6c757d;
+  margin: 0;
+  font-size: 14px;
+}
+.text-footer:hover {
+  color: black;
+}
+
+
+/*  crud-produtos  */
+
+.title-02 {
+  margin-top: 8%;
+}
+
+/* search  */
+
+.search {
+  margin-left: 10%;
+  margin-right: 10%;
+  margin-top: 4%;
+  margin-bottom: 4%;
+}
+
+/* table */
+
+.table {
+  margin-left: 10%;
+  margin-right: 10%;
+  margin-top: 4%;
+}
